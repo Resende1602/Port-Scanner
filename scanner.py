@@ -3,23 +3,24 @@ import threading
 
 def coletar_banner(ip, porta):
     try:
-        # Criação do socket para conectar ao serviço
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(1)
         s.connect((ip, porta))
-        
-        # Se a porta for HTTP (80), envia uma requisição GET para coletar o banner
+
         if porta == 80:
-            request = f"GET / HTTP/1.1\r\nHost: {ip}\r\n\r\n"  # String formatada
-            s.send(request.encode())  # Converte a string para bytes antes de enviar
+            request = f"GET / HTTP/1.1\r\nHost: {ip}\r\n\r\n"
+            s.send(request.encode())
             banner = s.recv(1024)
             print(f"[+] Porta {porta} aberta - Banner HTTP: {banner.decode().strip()}")
         else:
-            # Para outras portas, apenas coleta o banner genérico
             banner = s.recv(1024)
             print(f"[+] Porta {porta} aberta - Banner: {banner.decode().strip()}")
+    except socket.timeout:
+        print(f"[!] Timeout ao tentar conectar à porta {porta}.")
+    except ConnectionRefusedError:
+        print(f"[!] Conexão recusada na porta {porta}.")
     except Exception as e:
-        print(f"[+] Porta {porta} aberta - Erro: {e}")
+        print(f"[!] Erro ao coletar banner na porta {porta}: {e}")
     finally:
         s.close()
 
@@ -27,13 +28,15 @@ def verificar_porta(ip, porta):
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(0.5)
-        conexao = s.connect_ex((ip, porta))  # Retorna 0 se a porta estiver aberta
+        conexao = s.connect_ex((ip, porta))
 
         if conexao == 0:
             print(f"[+] Porta {porta} aberta!")
             coletar_banner(ip, porta)
-    except:
-        pass
+    except socket.gaierror:
+        print(f"[!] Endereço IP ou domínio inválido: {ip}")
+    except Exception as e:
+        print(f"[!] Erro ao verificar a porta {porta}: {e}")
     finally:
         s.close()
 
@@ -51,5 +54,10 @@ def executar_scan(ip, portas):
 
 if __name__ == "__main__":
     alvo = input("Digite o IP ou domínio alvo: ")
-    portas = range(20, 1025)  # Escaneia da porta 20 até a 1024 (padrão)
-    executar_scan(alvo, portas)
+
+    # Verificação simples para evitar IPs ou domínios vazios
+    if not alvo.strip():
+        print("[!] IP ou domínio inválido. Encerrando aplicação.")
+    else:
+        portas = range(20, 1025)  # Porta 20 a 1024
+        executar_scan(alvo, portas)
