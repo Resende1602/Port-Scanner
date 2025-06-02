@@ -36,6 +36,8 @@ def verificar_porta(ip, porta, scan_timeout=1.0, banner_timeout=2.0):
         if conexao == 0:
             print(f"[+] Porta {porta} aberta!")
             coletar_banner(ip, porta, banner_timeout)
+        else:
+            print(f"[-] Porta {porta} fechada ou filtrada.")  # <- aqui o else
     except socket.gaierror:
         print(f"[!] Endereço IP ou domínio inválido: {ip}")
     except Exception as e:
@@ -66,8 +68,10 @@ if not alvo:
     print("[!] IP ou domínio inválido. Encerrando aplicação.")
     exit(1)
 
-# Configurações ajustáveis
-portas = range(20, 1025)
-scan_timeout = 2.5
+# Configurações para rodar o scan (exemplo reduzido para teste)
+portas = [22, 80, 443]  
+scan_timeout = 2.0
 banner_timeout = 1.5
 max_threads = 50
+
+executar_scan(alvo, portas, scan_timeout, banner_timeout, max_threads)
