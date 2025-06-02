@@ -60,17 +60,14 @@ def executar_scan(ip, portas, scan_timeout=1.0, banner_timeout=2.0, max_threads=
     for t in threads:
         t.join()
 
-if __name__ == "__main__":
-    alvo = input("Digite o IP ou domínio alvo: ").strip()
-    
-    if not alvo:
-        print("[!] IP ou domínio inválido. Encerrando aplicação.")
-        exit(1)
-    
-    # Configurações ajustáveis
-    portas = range(20, 1025)  
-    scan_timeout = 2.5       
-    banner_timeout = 1.5      
-    max_threads = 50          
-    
-    executar_scan(alvo, portas, scan_timeout, banner_timeout, max_threads)
+alvo = input("Digite o IP ou domínio alvo: ").strip()
+
+if not alvo:
+    print("[!] IP ou domínio inválido. Encerrando aplicação.")
+    exit(1)
+
+# Configurações ajustáveis
+portas = range(20, 1025)
+scan_timeout = 2.5
+banner_timeout = 1.5
+max_threads = 50
