@@ -68,9 +68,9 @@ if __name__ == "__main__":
         exit(1)
     
     # Configurações ajustáveis
-    portas = range(20, 1025)  # Portas 20 a 1024
-    scan_timeout = 0.5        # Timeout para verificação de porta
-    banner_timeout = 1.5      # Timeout para coleta de banner
-    max_threads = 50          # Número máximo de threads simultâneas
+    portas = range(20, 1025)  
+    scan_timeout = 2.5       
+    banner_timeout = 1.5      
+    max_threads = 50          
     
     executar_scan(alvo, portas, scan_timeout, banner_timeout, max_threads)
