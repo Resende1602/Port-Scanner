@@ -49,29 +49,44 @@ def verificar_porta(ip, porta, scan_timeout=1.0, banner_timeout=2.0):
 def executar_scan(ip, portas, scan_timeout=1.0, banner_timeout=2.0, max_threads=100):
     print(f"\nIniciando varredura em: {ip}")
     print(f"Timeout scan: {scan_timeout}s | Timeout banner: {banner_timeout}s\n")
+    
     threads = []
+    portas_abertas = []
+    portas_fechadas = []
+
+    def tarefa(porta):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(scan_timeout)
+            conexao = s.connect_ex((ip, porta))
+
+            if conexao == 0:
+                print(f"[+] Porta {porta} aberta!")
+                portas_abertas.append(porta)
+                coletar_banner(ip, porta, banner_timeout)
+            else:
+                print(f"[-] Porta {porta} fechada ou filtrada.")
+                portas_fechadas.append(porta)
+        except socket.gaierror:
+            print(f"[!] Endereço IP ou domínio inválido: {ip}")
+        except Exception as e:
+            print(f"[!] Erro ao verificar a porta {porta}: {str(e)}")
+        finally:
+            if 's' in locals():
+                s.close()
 
     for porta in portas:
         while threading.active_count() > max_threads:
             threading.Event().wait(0.1)
         
-        t = threading.Thread(target=verificar_porta, args=(ip, porta, scan_timeout, banner_timeout))
+        t = threading.Thread(target=tarefa, args=(porta,))
         threads.append(t)
         t.start()
 
     for t in threads:
         t.join()
 
-alvo = input("Digite o IP ou domínio alvo: ").strip()
-
-if not alvo:
-    print("[!] IP ou domínio inválido. Encerrando aplicação.")
-    exit(1)
-
-# Configurações para rodar o scan (exemplo reduzido para teste)
-portas = [22, 80, 443]  
-scan_timeout = 2.0
-banner_timeout = 1.5
-max_threads = 50
-
-executar_scan(alvo, portas, scan_timeout, banner_timeout, max_threads)
+    # 📢 Resumo final
+    print("\n🔍 Scan finalizado!")
+    print(f"✅ Portas abertas: {portas_abertas if portas_abertas else 'Nenhuma'}")
+    print(f"❌ Portas fechadas ou filtradas: {portas_fechadas if portas_fechadas else 'Nenhuma'}")
