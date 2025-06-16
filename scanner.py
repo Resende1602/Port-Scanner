@@ -86,7 +86,7 @@ def executar_scan(ip, portas, scan_timeout=1.0, banner_timeout=2.0, max_threads=
     for t in threads:
         t.join()
 
-    # 📢 Resumo final
+   
     print("\n🔍 Scan finalizado!")
     print(f"✅ Portas abertas: {portas_abertas if portas_abertas else 'Nenhuma'}")
     print(f"❌ Portas fechadas ou filtradas: {portas_fechadas if portas_fechadas else 'Nenhuma'}")
